@@ -91,4 +91,45 @@ class AuthResourceTest {
         .body("token", notNullValue());
   }
 
+  @Test
+  void testCustomerLoginEndpoint() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(Map.of("username", "John",
+            "email", "john@gmail.com",
+            "password", "123"))
+        .when().post("/api/register")
+        .then()
+        .contentType(ContentType.JSON)
+        .statusCode(200)
+        .body("message", is("Registered successfully"));
+
+    var response = given()
+        .contentType(ContentType.JSON)
+        .body(Map.of("email", "john@gmail.com",
+            "password", "123"))
+        .when().post("/api/login")
+        .then()
+        .contentType(ContentType.JSON)
+        .statusCode(200)
+        .body("token", notNullValue())
+        .extract().response();
+
+    var token = response.jsonPath().getString("token");
+
+    given()
+        .header("Authorization", "Bearer " + token)
+        .when()
+        .get("/api/customer/hello")
+        .then()
+        .statusCode(200);
+
+    given()
+        .header("Authorization", "Bearer " + token)
+        .when()
+        .get("/api/admin/hello")
+        .then()
+        .statusCode(403);
+  }
+
 }

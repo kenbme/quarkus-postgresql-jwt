@@ -3,13 +3,18 @@ package io.github.kenbme.controllers;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
 import io.github.kenbme.dtos.LoginDTO;
 import io.github.kenbme.dtos.RegisterDTO;
 import io.github.kenbme.entities.Client;
 import io.github.kenbme.utils.JwtUtils;
 import io.quarkus.elytron.security.common.BcryptUtil;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.WebApplicationException;
@@ -17,6 +22,9 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/api")
 public class AuthResource {
+
+  @Inject
+  private JsonWebToken token;
 
   @Path("/login")
   @POST
@@ -48,6 +56,20 @@ public class AuthResource {
     client.role = "customer";
     client.persist();
     return Map.of("message", "Registered successfully");
+  }
+
+  @Path("/customer/hello")
+  @GET
+  @RolesAllowed("customer")
+  public Map<String, String> customerHello() {
+    return Map.of("message", String.format("Hello, Customer ", token.getName(), "!"));
+  }
+
+  @Path("/admin/hello")
+  @GET
+  @RolesAllowed("admin")
+  public Map<String, String> adminHello() {
+    return Map.of("message", String.format("Hello, Admin ", token.getName(), "!"));
   }
 
 }
