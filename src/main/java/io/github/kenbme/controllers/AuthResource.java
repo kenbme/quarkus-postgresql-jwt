@@ -23,7 +23,7 @@ public class AuthResource {
   public Map<String, String> login(@Valid LoginDTO dto) {
     Optional<Client> clientOpt = Client.find("email", dto.email).firstResultOptional();
     if (clientOpt.isEmpty()) {
-      BcryptUtil.matches(dto.password, JwtUtils.getHashSample());
+      BcryptUtil.matches(dto.password, JwtUtils.HASH_SAMPLE);
       throw new WebApplicationException("Invalid email or password", Response.Status.CONFLICT);
     }
     var client = clientOpt.get();
@@ -45,6 +45,7 @@ public class AuthResource {
     client.username = dto.username;
     client.email = dto.email;
     client.encryptedPassword = BcryptUtil.bcryptHash(dto.password);
+    client.role = "customer";
     client.persist();
     return Map.of("message", "Registered successfully");
   }

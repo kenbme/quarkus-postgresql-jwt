@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
@@ -64,6 +65,30 @@ class AuthResourceTest {
         .contentType(ContentType.JSON)
         .statusCode(409)
         .body("error", is("Email already registered"));
+  }
+
+  @Test
+  void testLoginEndpoint() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(Map.of("username", "John",
+            "email", "john@gmail.com",
+            "password", "123"))
+        .when().post("/api/register")
+        .then()
+        .contentType(ContentType.JSON)
+        .statusCode(200)
+        .body("message", is("Registered successfully"));
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(Map.of("email", "john@gmail.com",
+            "password", "123"))
+        .when().post("/api/login")
+        .then()
+        .contentType(ContentType.JSON)
+        .statusCode(200)
+        .body("token", notNullValue());
   }
 
 }
