@@ -41,7 +41,7 @@ public class AuthResource {
   @Transactional
   public Map<String, String> register(@Valid RegisterDTO dto) {
     var clientOpt = Client.find("email", dto.email).firstResultOptional();
-    if (!clientOpt.isEmpty()) {
+    if (clientOpt.isPresent()) {
       throw new WebApplicationException("Email already registered", Response.Status.CONFLICT);
     }
     var client = new Client();
