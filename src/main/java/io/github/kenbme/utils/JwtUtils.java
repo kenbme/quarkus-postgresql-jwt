@@ -9,8 +9,6 @@ public class JwtUtils {
 
   private static final String ISSUER = "quarkus";
 
-  public static final String HASH_SAMPLE = "$2a$10$7EqJtq98hPqEX7fNZaFWoOaMdI1ajxZ7dkpQ.j8H2vMGy1xHDVdZK";
-
   public static String generateToken(Client client) {
     return Jwt.issuer(ISSUER)
         .upn(client.username)
