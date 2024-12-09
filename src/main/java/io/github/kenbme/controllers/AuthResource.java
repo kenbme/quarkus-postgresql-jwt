@@ -30,15 +30,10 @@ public class AuthResource {
   @POST
   public Map<String, String> login(@Valid LoginDTO dto) {
     Optional<Client> clientOpt = Client.find("email", dto.email).firstResultOptional();
-    if (clientOpt.isEmpty()) {
-      BcryptUtil.matches(dto.password, JwtUtils.HASH_SAMPLE);
-      throw new WebApplicationException("Invalid email or password", Response.Status.CONFLICT);
+    if (clientOpt.isEmpty() || !BcryptUtil.matches(dto.password, clientOpt.get().encryptedPassword)) {
+      throw new WebApplicationException("Invalid email or password", Response.Status.UNAUTHORIZED);
     }
-    var client = clientOpt.get();
-    if (!BcryptUtil.matches(dto.password, client.encryptedPassword)) {
-      throw new WebApplicationException("Invalid email or password", Response.Status.CONFLICT);
-    }
-    return Map.of("token", JwtUtils.generateToken(client));
+    return Map.of("token", JwtUtils.generateToken(clientOpt.get()));
   }
 
   @Path("/register")
